@@ -1,6 +1,8 @@
 package server
 
 import (
+	apis "Cosomos-Odyssey/internal/API"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -13,7 +15,7 @@ func Start() {
 	AllowHeaders:     []string{"Origin", "Authorization", "Content-Type"},
     AllowCredentials: true,
   }))
-	API.Api(router)
+	apis.Api(router)
 	router.Run()
 
 }
