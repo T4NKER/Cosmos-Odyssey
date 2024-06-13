@@ -1,7 +1,9 @@
 package services
 
+import "Cosomos-Odyssey/internal/models"
 
-import (
+type RouteService struct {}
 
-)
+func (r *RouteService) GetQuotes(models.RequestedRoute) ([]models.QuotedRoute, err) {
 
+}
