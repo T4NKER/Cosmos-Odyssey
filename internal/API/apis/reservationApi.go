@@ -1,16 +1,18 @@
 package apis
 
 import (
-	"github.com/gin-gonic/gin"
+	"Cosomos-Odyssey/internal/services"
+	"cosmos-odyssey/internal/models"
 	"net/http"
-	"cosmos-odyssey/models"
+
+	"github.com/gin-gonic/gin"
 )
 
 type ReservationAPI struct{
-	ReservationService *ReservationService
+	ReservationService *services.ReservationService
 }
 
-func NewReservationAPI(reservationService *ReservationService) *ReservationAPI {
+func NewReservationAPI(reservationService *services.ReservationService) *ReservationAPI {
 	return &ReservationAPI{ReservationService: reservationService}
 }
 
@@ -25,6 +27,10 @@ func (r *ReservationAPI) MakeReservation(c *gin.Context) {
 		return
 	}
 
+	err := r.ReservationService.MakeReservation()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
 	// Implement logic to save reservation
 
 	c.JSON(http.StatusOK, gin.H{"success": true})

@@ -1,25 +1,28 @@
-package apis
+package API
 
 import (
 	"github.com/gin-gonic/gin"
+	apis "internal/API/apis"
 )
 
 type MasterAPI struct {
-	AuthAPI        *AuthAPI
 	RoutesAPI      *RoutesAPI
 	ReservationAPI *ReservationAPI
 }
 
-func NewMasterAPI(authAPI *AuthAPI, routesAPI *RoutesAPI, reservationAPI *ReservationAPI) *MasterAPI {
+func NewMasterAPI(routeAPI *apis.RouteAPI, reservationAPI *apis.ReservationAPI) *MasterAPI {
 	return &MasterAPI{
-		AuthAPI:        authAPI,
-		RoutesAPI:      routesAPI,
+		RoutesAPI:      routeAPI,
 		ReservationAPI: reservationAPI,
 	}
 }
 
 func (m *MasterAPI) RegisterRoutes(router *gin.Engine) {
-	m.AuthAPI.RegisterRoutes(router)
 	m.RoutesAPI.RegisterRoutes(router)
 	m.ReservationAPI.RegisterRoutes(router)
+	router.GET("/", m.homeHandler)
+}
+
+func (m *MasterAPI) homeHandler(router *gin.Engine) {
+
 }
