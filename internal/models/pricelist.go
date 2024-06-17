@@ -6,9 +6,9 @@ import (
 
 // This should be refetched every 15 minutes, since the data refreshes every 15 minutes.
 type Pricelist struct {
-	Id         string `json:"id"`
-	ValidUntil string `json:"validUntil"`
-	Legs       []Legs `json:"legs"`
+	Id         string    `json:"id"`
+	ValidUntil time.Time `json:"validUntil"`
+	Legs       []Legs    `json:"legs"`
 }
 
 type Legs struct {

@@ -1,8 +1,8 @@
 package apis
 
 import (
-	"Cosomos-Odyssey/internal/services"
-	"cosmos-odyssey/internal/models"
+	"Cosmos-Odyssey/internal/services"
+	"Cosmos-Odyssey/internal/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -31,7 +31,6 @@ func (r *ReservationAPI) MakeReservation(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
-	// Implement logic to save reservation
 
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }

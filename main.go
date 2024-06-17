@@ -1,9 +1,9 @@
 package main
 
 import (
-
+	"Cosmos-Odyssey/cmd"
 )
 
 func main() {
-	server.Start()
+	cmd.Start()
 }

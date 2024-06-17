@@ -1,4 +1,4 @@
-package server
+package cmd
 
 import (
 	"gopkg.in/ini.v1"

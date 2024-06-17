@@ -1,8 +1,8 @@
 package apis
 
 import (
-	"Cosomos-Odyssey/internal/models"
-	"Cosomos-Odyssey/internal/services"
+	"Cosmos-Odyssey/internal/models"
+	"Cosmos-Odyssey/internal/services"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -17,7 +17,7 @@ func NewRouteAPI(routeService *services.RouteService) *RouteAPI {
 }
 
 func (r *RouteAPI) RegisterRoutes(router *gin.Engine) {
-    router.GET("/routes", r.GetQuotes)
+    router.POST("/routes", r.GetQuotes)
 }
 
 func (r *RouteAPI) GetQuotes(c *gin.Context) {
