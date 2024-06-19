@@ -46,12 +46,11 @@ func (r *RouteService) pricelistUpdater() {
 func (r *RouteService) GetQuotes(requestedRoute models.RequestedRoute) ([]models.QuotedRoute, error) {
 	startTime := time.Now()
 	log.Println(time.Now().UTC())
-	log.Println(r.Pricelist.ValidUntil)
+	log.Println("Pricelist valid until: ", r.Pricelist.ValidUntil.Format("2006-01-02 15:15:15"))
 	visited := make(map[string]bool)
 	currentPath := []string{}
 	foundRoutes := [][]string{}
 
-	// Find routes
 	foundRoutes = r.findRoutes(requestedRoute.From, requestedRoute.To, external.AllConnections, visited, currentPath)
 	log.Println(foundRoutes)
 	quotedRoutes, err := r.findAllPossiblePrices(foundRoutes, requestedRoute)
@@ -67,6 +66,7 @@ func (r *RouteService) GetQuotes(requestedRoute models.RequestedRoute) ([]models
 	elapsedTime := time.Since(startTime)
 	log.Printf("GetQuotes took %s", elapsedTime)
 
+	
 	return quotedRoutes, nil
 }
 
@@ -147,10 +147,12 @@ func (r *RouteService) generateRoutesForProviders(route []string, requestedRoute
 		}
 
 		newQuotedRoute := models.QuotedRoute{
+			PricelistID:   r.Pricelist.Id,
 			FullRoute:     currentQuotedRoute.FullRoute,
 			Sections:      append([]models.RouteSection{}, currentQuotedRoute.Sections...),
 			TotalCost:     currentQuotedRoute.TotalCost + provider.Price,
 			TotalDistance: currentQuotedRoute.TotalDistance + provider.Distance,
+			ValidUntil: r.Pricelist.ValidUntil,
 		}
 
 		newQuotedRoute.Sections = append(newQuotedRoute.Sections, provider)

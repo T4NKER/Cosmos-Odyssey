@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Destination Selection</title>
+    <style>
+        /* Basic styling for demonstration */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        select {
+            width: 200px;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h2>Select Destination and Company</h2>
+    <form id="destinationForm" action="/routes" method="POST">
+        <label for="from">Select starting point:</label>
+        <select id="from" name="from" required>
+            <option value="">-- Select Starting Point --</option>
+            <!-- Populate starting point options dynamically -->
+            {{ range .companiesAndDestinations.Destinations }}
+                <option value="{{ . }}">{{ . }}</option>
+            {{ end }}
+        </select>
+
+        <label for="to">Select Destination:</label>
+        <select id="to" name="to" required>
+            <option value="">-- Select Destination --</option>
+            <!-- Populate destination options dynamically -->
+            {{ range .companiesAndDestinations.Destinations }}
+                <option value="{{ . }}">{{ . }}</option>
+            {{ end }}
+        </select>
+        
+        <label for="provider">Select Company (Optional):</label>
+        <select id="provider" name="provider">
+            <option value="">-- Select Company --</option>
+            <!-- Populate company options dynamically -->
+            {{ range .companiesAndDestinations.Companies }}
+                <option value="{{ . }}">{{ . }}</option>
+            {{ end }}
+        </select>
+        
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        document.getElementById('destinationForm').addEventListener('submit', function(event) {
+            var from = document.getElementById('from').value;
+            var to = document.getElementById('to').value;
+
+            if (from === to) {
+                alert('Starting point and destination cannot be the same.');
+                event.preventDefault(); // Prevent form submission
+            }
+        });
+    </script>
+</body>
+</html>

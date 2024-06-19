@@ -12,15 +12,17 @@ import (
 
 func Start() {
 	router := gin.Default()
+	router.LoadHTMLGlob("./frontend/*.html")
 	router.Use(cors.New(loadCorsConfig()))
 
 	routeService := services.NewRouteService(database.Db)
-	reservationService := services.NewReservationService()
+	reservationService := services.NewReservationService(database.Db)
+	homeService := services.NewHomeService(database.Db)
 
 	routeAPI := apis.NewRouteAPI(routeService)
 	reservationAPI := apis.NewReservationAPI(reservationService)
 
-	masterAPI := API.NewMasterAPI(routeAPI, reservationAPI)
+	masterAPI := API.NewMasterAPI(routeAPI, reservationAPI, homeService)
 	masterAPI.RegisterRoutes(router)
 
 	router.Run()

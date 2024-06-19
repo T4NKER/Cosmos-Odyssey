@@ -71,7 +71,7 @@ func storePricelist(db *sql.DB, pricelist models.Pricelist) {
 	err = tx.Commit()
 	if err != nil {
 		log.Println("Failed to commit transaction: ", err)
-		log.Println("This is probably because of trying to refresh the flight data too early and thus the unique id being same.")
+		log.Println("This is probably because of trying to refresh the flight data too early and thus the unique id being the same.")
 	}
 
 	_, err = db.Exec("DELETE FROM pricelists WHERE id NOT IN (SELECT id FROM pricelists ORDER BY created_at DESC LIMIT 15)")

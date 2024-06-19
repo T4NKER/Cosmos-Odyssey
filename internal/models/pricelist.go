@@ -40,3 +40,8 @@ type Providers struct {
 	FlightStart time.Time `json:"flightStart"`
 	FlightEnd   time.Time `json:"flightEnd"`
 }
+
+type CompaniesAndDestinations struct {
+	Companies     []string `json:"company"`
+	Destinations []string `json:"destination"`
+}

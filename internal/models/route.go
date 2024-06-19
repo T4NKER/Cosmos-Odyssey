@@ -5,21 +5,23 @@ import "time"
 // "time"
 
 type RequestedRoute struct {
-	To       string `json:"to"`
-	From     string `json:"from"`
-	Provider string `json:"provider"`
-	Sort     string `json:"sort"`
-	Limit    int    `json:"limit"`
-	Offset   int    `json:"offset"`
-	MaxCost  int    `json:"max_cost"`
+	To       string `form:"to" binding:"required"`
+	From     string `form:"from" binding:"required"`
+	Provider string `form:"provider"`
+	Sort     string `form:"sort"`
+	Limit    int    `form:"limit"`
+	Offset   int    `form:"offset"`
+	MaxCost  int    `form:"max_cost"`
 }
 
 type QuotedRoute struct {
+	PricelistID   string
 	FullRoute     []string
 	Sections      []RouteSection
 	TotalCost     float64
 	TotalTime     time.Duration
 	TotalDistance int
+	ValidUntil    time.Time
 }
 
 type RouteSection struct {

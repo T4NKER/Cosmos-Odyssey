@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quoted Routes</title>
+    <style>
+        /* Basic styling for demonstration */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .route-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        .route-item p {
+            margin: 5px 0;
+        }
+        .route-item p strong {
+            font-weight: bold;
+        }
+        .route-item h3 {
+            margin-top: 10px;
+        }
+        .section-item {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+        }
+        .section-item p {
+            margin: 3px 0;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h2>Quoted Routes</h2>
+
+    <!-- Container to hold quoted routes -->
+    <div id="quotedRoutesContainer">
+        {{ range .quotedRoutes }}
+            <div class="route-item" id={{.PricelistID}}>
+                <p><strong>Full Route:</strong> {{ .FullRoute }}</p>
+                <p><strong>Total Cost:</strong> <span class="totalCost"> ${{ .TotalCost }}</span></p>
+                <p><strong>Total Time:</strong> <span class="totalTime"> {{ .TotalTime }} </span></p>
+                <p><strong>Total Distance:</strong> {{ .TotalDistance }} miles</p>
+                
+                {{ if .Sections }}
+                    <h3>Route Sections:</h3>
+                    {{ range .Sections }}
+                        <div class="section-item">
+                            <p><strong>Provider:</strong> {{ .Provider }}</p>
+                            <p><strong>From:</strong> {{ .From }}</p>
+                            <p><strong>To:</strong> {{ .To }}</p>
+                            <p><strong>Distance:</strong> {{ .Distance }} km</p>
+                            <p><strong>Flight Start:</strong> <span class="time"> {{ .FlightStart }}</span></p>
+                            <p><strong>Flight End:</strong> <span class="time">{{ .FlightEnd }}</span></p>
+                        </div>
+                    {{ end }}
+                {{ end }}
+                <div class="reserationContainer">
+                    <button type="button" class="reservationButton">Confirm reservation</button>
+                </div>
+            </div>
+        {{ end }}
+    </div>
+
+    <!-- Load more button (if needed) -->
+    <!-- Example button to load more routes -->
+    <button id="loadMoreBtn" class="load-more" style="display: none;">Load More</button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Select all elements containing total time
+            const timeElements = document.querySelectorAll('.time');
+            const totalTime = document.querySelectorAll('.totalTime');
+            const totalCost = document.querySelectorAll('.totalCost');
+
+            totalCost.forEach(function (total) {
+                formatCost(total);
+            })
+
+            totalTime.forEach(function (element) {
+                convertTime(element)
+            })
+            function convertTime(totalTimeElement) {
+            const timeString = totalTimeElement.textContent.trim();
+
+            const timeParts = timeString.match(/(\d+)h(\d+)m(\d+\.\d+)s/);
+            const hours = parseFloat(timeParts[1]);
+            const minutes = parseFloat(timeParts[2]);
+            const seconds = parseFloat(timeParts[3]);
+
+            const minutesToHours = minutes / 60;
+            const secondsToHours = seconds / 3600;
+
+            const totalHours = hours + minutesToHours + secondsToHours;
+
+            const totalDays = Math.floor(totalHours / 24);
+            const remainingHours = totalHours % 24;
+
+            totalTimeElement.textContent = `${totalDays} days and ${remainingHours.toFixed(0)} hours`;
+        }
+
+            timeElements.forEach(function (element) {
+                const duration = element.textContent;
+                const duration2 = element.innerHTML;
+                const formattedDuration = formatDuration(duration);
+                element.textContent = formattedDuration;
+            });
+
+            function formatCost(element) {
+                let cost = element.textContent;
+                console.log(cost);
+                cost = cost.slice(2)
+                console.log(cost);
+                var x = parseFloat(cost).toFixed(0);
+                let fullNumber = x.toString();
+                element.textContent = `$ ${fullNumber}`;
+            }
+
+            function formatDuration(duration) {
+                const time = new Date(duration);
+                return time
+            }
+
+        });
+    </script>
+</body>
+</html>
