@@ -29,11 +29,15 @@ func (r *ReservationAPI) MakeReservation(c *gin.Context) {
 		return
 	}
 
-	/* err := r.ReservationService.ValidateReservation(reservation)
+	err := r.ReservationService.ValidateReservation(reservation)
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "error.html", gin.H{"error": "Error validating reservation, please try again"})
-		 return
-	} */
+			if err.Error() == "invalid reservation, there's a new pricelist already, refresh and try again" {
+				c.HTML(http.StatusBadRequest, "error.html", gin.H{"error": err.Error()})
+				return
+			}
+			c.HTML(http.StatusBadRequest, "error.html", gin.H{"error": "There was an error creating the reservation"})
+			return
+	}
 
 	reservationSuccess, err := r.ReservationService.MakeReservation(reservation)
 	if err != nil {
