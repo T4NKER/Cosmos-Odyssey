@@ -41,7 +41,7 @@ func (r *ReservationAPI) MakeReservation(c *gin.Context) {
 
 	reservationSuccess, err := r.ReservationService.MakeReservation(reservation)
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "error.html", gin.H{"error": "There was an error creating the reservation"})
+		c.HTML(http.StatusBadRequest, "error.html", gin.H{"error": "There was an error creating the reservation" + err.Error()})
 		return
 	}
 
