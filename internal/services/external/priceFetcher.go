@@ -7,17 +7,51 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"sync"
+	"time"
 	//"github.com/go-co-op/gocron/v2"
 )
 
 var AllConnections = make(map[string][]string)
+var pricelistService *PricelistService
+var once sync.Once
 
-func ApiScheduler() (models.Pricelist) {
-	pricelistData := fetchAndStoreData()
-	return pricelistData
+type PricelistService struct {
+	Pricelist models.Pricelist
+	Mutex     sync.Mutex
+	DB        *sql.DB 
 }
 
-func fetchAndStoreData() (models.Pricelist) {
+func NewExternalPricelistService() *PricelistService {
+	once.Do(func() {
+		pricelistService = &PricelistService{}
+		pricelistService.refreshPricelist()
+		go pricelistService.pricelistUpdater()
+	})
+	return pricelistService
+}
+
+func (p *PricelistService) pricelistUpdater() {
+	for {
+		time.Sleep(time.Minute)
+
+		p.Mutex.Lock()
+		if p.Pricelist.ValidUntil.Before(time.Now()) {
+			p.refreshPricelist()
+			log.Println("Pricelist refreshed.")
+		}
+		p.Mutex.Unlock()
+	}
+}
+
+func (p *PricelistService) refreshPricelist() {
+	pricelistData := fetchAndStoreData()
+	p.Mutex.Lock()
+	defer p.Mutex.Unlock()
+	p.Pricelist = pricelistData
+}
+
+func fetchAndStoreData() models.Pricelist {
 	response, err := http.Get("https://cosmos-odyssey.azurewebsites.net/api/v1.0/TravelPrices")
 	if err != nil {
 		log.Fatalf("Failed to fetch data: %v", err)

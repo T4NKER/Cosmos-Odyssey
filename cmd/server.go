@@ -4,6 +4,7 @@ import (
 	"Cosmos-Odyssey/internal/API"
 	"Cosmos-Odyssey/internal/API/apis"
 	"Cosmos-Odyssey/internal/services"
+	"Cosmos-Odyssey/internal/services/external"
 	"Cosmos-Odyssey/pkg/database"
 
 	"github.com/gin-contrib/cors"
@@ -15,8 +16,9 @@ func Start() {
 	router.LoadHTMLGlob("./frontend/*.html")
 	router.Use(cors.New(loadCorsConfig()))
 
-	routeService := services.NewRouteService(database.Db)
-	reservationService := services.NewReservationService(database.Db)
+	pricelistService := external.NewExternalPricelistService()
+	routeService := services.NewRouteService(database.Db, pricelistService)
+	reservationService := services.NewReservationService(database.Db, pricelistService)
 	homeService := services.NewHomeService(database.Db)
 
 	routeAPI := apis.NewRouteAPI(routeService)

@@ -10,51 +10,34 @@ import (
 	"log"
 	"math"
 	"sort"
-	"sync"
 
 	"time"
 )
 
 type RouteService struct {
-	DB            *sql.DB
-	Pricelist     models.Pricelist
-	pricelistMutex sync.Mutex
+    DB            *sql.DB
+    Pricelist     *external.PricelistService
 }
 
-func NewRouteService(database *sql.DB) *RouteService {
-	service := &RouteService{
-		DB: database,
-	}
+func NewRouteService(database *sql.DB, pricelistService *external.PricelistService) *RouteService {
+    service := &RouteService{
+        DB:        database,
+        Pricelist: pricelistService,
+    }
 
-	go service.pricelistUpdater()
-
-	return service
-}
-
-func (r *RouteService) pricelistUpdater() {
-	r.Pricelist = external.ApiScheduler()
-	for {
-		time.Sleep(time.Minute) // Check every minute; adjust as needed
-
-		r.pricelistMutex.Lock()
-		if r.Pricelist.ValidUntil.Before(time.Now()) {
-			r.Pricelist = external.ApiScheduler()
-			log.Println("Pricelist refreshed.")
-		}
-		r.pricelistMutex.Unlock()
-	}
+    return service
 }
 
 func (r *RouteService) GetQuotes(requestedRoute models.RequestedRoute) ([]models.QuotedRoute, error) {
 	startTime := time.Now()
 	log.Println(time.Now().UTC())
-	log.Println("Pricelist valid until: ", r.Pricelist.ValidUntil.Format("2006-01-02 15:15:15"))
+	log.Println("Pricelist valid until: UTC FORMAT ", r.Pricelist.Pricelist.ValidUntil.Format("2006-01-02 15:15:15"))
 	visited := make(map[string]bool)
 	currentPath := []string{}
 	foundRoutes := [][]string{}
 
 	foundRoutes = r.findRoutes(requestedRoute.From, requestedRoute.To, external.AllConnections, visited, currentPath)
-	log.Println(foundRoutes)
+    log.Println(foundRoutes)
 	quotedRoutes, err := r.findAllPossiblePrices(foundRoutes, requestedRoute)
 	if err != nil {
 		return nil, err
@@ -87,6 +70,7 @@ func (r *RouteService) sorter(quotedRoutes []models.QuotedRoute, requestedRoute 
 			return quotedRoutes[i].TotalDistance < quotedRoutes[j].TotalDistance
 		})
 	default:
+        // sorted default by golden ratio, prioritizing price
 		sort.SliceStable(quotedRoutes, func(i, j int) bool {
 			return int(float64(quotedRoutes[i].TotalCost)*1.618*float64(quotedRoutes[i].TotalDistance)) < int(float64(quotedRoutes[j].TotalCost)*1.618*float64(quotedRoutes[j].TotalDistance))
 		})
@@ -126,7 +110,10 @@ func (r *RouteService) findAllPossiblePrices(routes [][]string, requestedRoute m
 
 func (r *RouteService) generateRoutesForProviders(route []string, requestedRoute models.RequestedRoute, currentQuotedRoute models.QuotedRoute, segmentIndex int) []models.QuotedRoute {
     if segmentIndex >= len(route)-1 {
-        return []models.QuotedRoute{currentQuotedRoute}
+        if requestedRoute.MaxCost == 0 || currentQuotedRoute.TotalCost <= int64(requestedRoute.MaxCost) {
+            return []models.QuotedRoute{currentQuotedRoute}
+        }
+        return nil
     }
 
     from := route[segmentIndex]
@@ -148,13 +135,18 @@ func (r *RouteService) generateRoutesForProviders(route []string, requestedRoute
             }
         }
 
+        newTotalCost := currentQuotedRoute.TotalCost + int64(math.Round(provider.Price))
+        if requestedRoute.MaxCost != 0 && newTotalCost > int64(requestedRoute.MaxCost) {
+            continue
+        }
+
         newQuotedRoute := models.QuotedRoute{
-            PricelistID:   r.Pricelist.Id,
+            PricelistID:   r.Pricelist.Pricelist.Id,
             FullRoute:     currentQuotedRoute.FullRoute,
             Sections:      append([]models.RouteSection{}, currentQuotedRoute.Sections...),
-            TotalCost:     currentQuotedRoute.TotalCost + int64(math.Round(provider.Price)),
+            TotalCost:     newTotalCost,
             TotalDistance: currentQuotedRoute.TotalDistance + provider.Distance,
-            ValidUntil:    r.Pricelist.ValidUntil,
+            ValidUntil:    r.Pricelist.Pricelist.ValidUntil,
         }
 
         newQuotedRoute.Sections = append(newQuotedRoute.Sections, provider)
@@ -187,7 +179,7 @@ func formatDuration(duration time.Duration) string {
 func (r *RouteService) fetchProviders(from, to string, requestedRoute models.RequestedRoute) ([]models.RouteSection, error) {
     var providers []models.RouteSection
 	currentTime := time.Now().UTC()
-    for _, leg := range r.Pricelist.Legs {
+    for _, leg := range r.Pricelist.Pricelist.Legs {
         routeInfo := leg.RouteInfo
         if routeInfo.From.Name == from && routeInfo.To.Name == to {
             for _, provider := range leg.Providers {
