@@ -1,12 +1,13 @@
 package models
 
 type Reservation struct {
-	ID                         string   `json:"id"`
-	PricelistID                string   `json:"pricelistID"`
-	Firstname                  string   `json:"firstname"`
-	Lastname                   string   `json:"lastname"`
-	Route                      []string `json:"route"`
-	TotalQuotedPrice           float64  `json:"totalQuotedPrice"`
-	TotalQuotedTravelTime      float64  `json:"totalQuotedTravelTime"`
-	TransportationCompanyNames string   `json:"transportationCompanyNames"`
+	ID                         string  `form:"id"`
+	PricelistID                string  `form:"pricelistID"`
+	Firstname                  string  `form:"firstname"`
+	Lastname                   string  `form:"lastname"`
+	Route                      string  `form:"fullRoute"`
+	TotalQuotedPrice           float64 `form:"totalCost"`
+	TotalQuotedTravelTime      string  `form:"totalTime"`
+	TransportationCompanyNames string  `form:"transportationCompanyNames"`
+	ValidUntil                 string  `form:"validUntil"`
 }

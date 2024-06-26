@@ -21,8 +21,9 @@ func Start() {
 
 	routeAPI := apis.NewRouteAPI(routeService)
 	reservationAPI := apis.NewReservationAPI(reservationService)
+	homeAPI := apis.NewHomeAPI(homeService)
 
-	masterAPI := API.NewMasterAPI(routeAPI, reservationAPI, homeService)
+	masterAPI := API.NewMasterAPI(routeAPI, reservationAPI, homeAPI)
 	masterAPI.RegisterRoutes(router)
 
 	router.Run()

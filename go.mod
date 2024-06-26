@@ -1,10 +1,12 @@
-module Cosomos-Odyssey
+module Cosmos-Odyssey
 
-go 1.18
+go 1.22
 
 require (
 	github.com/gin-contrib/cors v1.7.2
 	github.com/gin-gonic/gin v1.10.0
+	github.com/mattn/go-sqlite3 v1.14.22
+	gopkg.in/ini.v1 v1.67.0
 )
 
 require (

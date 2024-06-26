@@ -18,8 +18,8 @@ type QuotedRoute struct {
 	PricelistID   string
 	FullRoute     []string
 	Sections      []RouteSection
-	TotalCost     float64
-	TotalTime     time.Duration
+	TotalCost     int64
+	TotalTime     string
 	TotalDistance int
 	ValidUntil    time.Time
 }

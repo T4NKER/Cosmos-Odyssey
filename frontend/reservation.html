@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservation Details</title>
+    <style>
+        /* Basic styling for demonstration */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .reservation-details {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        .reservation-details p {
+            margin: 5px 0;
+        }
+        .error-message {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f44336;
+            color: white;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Reservation Details</h2>
+
+    {{ if .error }}
+        <div class="error-message">
+            <p>An error occurred: {{ .error }}</p>
+        </div>
+    {{ else }}
+        <div class="reservation-details">
+            <p><strong>Reservation ID:</strong> {{ .ID }}</p>
+            <p><strong>First Name:</strong> {{ .FirstName }}</p>
+            <p><strong>Last Name:</strong> {{ .LastName }}</p>
+            <p><strong>Route:</strong> [{{ range $index, $element := .Route }}{{ if $index }}, {{ end }}{{ $element }}{{ end }}]</p>
+            <p><strong>Total Quoted Price:</strong> ${{ .TotalQuotedPrice }}</p>
+            <p><strong>Total Quoted Travel Time:</strong> {{ .TotalQuotedTravelTime }}</p>
+            <p><strong>Transportation Companies:</strong> {{ .TransportationCompanyNames }}</p>
+        </div>
+    {{ end }}
+
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error Page</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .error-container {
+            text-align: center;
+            border: 1px solid #f5c6cb;
+            padding: 20px;
+            background-color: #f8d7da;
+            border-radius: 5px;
+        }
+        .error-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .error-message {
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-title">Oops! Something went wrong.</div>
+        <div class="error-message" id="errorMessage">
+            {{.error}}
+        </div>
+    </div>
+
+    <script>
+    </script>
+</body>
+</html>

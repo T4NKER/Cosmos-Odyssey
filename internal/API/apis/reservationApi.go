@@ -1,14 +1,15 @@
 package apis
 
 import (
-	"Cosmos-Odyssey/internal/services"
 	"Cosmos-Odyssey/internal/models"
+	"Cosmos-Odyssey/internal/services"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-type ReservationAPI struct{
+type ReservationAPI struct {
 	ReservationService *services.ReservationService
 }
 
@@ -23,14 +24,22 @@ func (r *ReservationAPI) RegisterRoutes(router *gin.Engine) {
 func (r *ReservationAPI) MakeReservation(c *gin.Context) {
 	var reservation models.Reservation
 	if err := c.Bind(&reservation); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.HTML(http.StatusBadRequest, "error.html", gin.H{"error": "There was an error while parsing the reservation information"})
+		log.Println(err)
 		return
 	}
 
+	/* err := r.ReservationService.ValidateReservation(reservation)
+	if err != nil {
+		c.HTML(http.StatusBadRequest, "error.html", gin.H{"error": "Error validating reservation, please try again"})
+		 return
+	} */
+
 	reservationSuccess, err := r.ReservationService.MakeReservation(reservation)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.HTML(http.StatusBadRequest, "error.html", gin.H{"error": "There was an error creating the reservation"})
+		return
 	}
 
-	c.HTML(http.StatusOK, "reservation.html", reservationSuccess)
+	c.HTML(http.StatusOK, "reservation.html", gin.H{"error": nil, "reservationSuccess": reservationSuccess})
 }

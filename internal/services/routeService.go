@@ -6,7 +6,9 @@ import (
 	"Cosmos-Odyssey/internal/models"
 	"Cosmos-Odyssey/internal/services/external"
 	"database/sql"
+	"fmt"
 	"log"
+	"math"
 	"sort"
 	"sync"
 
@@ -86,7 +88,7 @@ func (r *RouteService) sorter(quotedRoutes []models.QuotedRoute, requestedRoute 
 		})
 	default:
 		sort.SliceStable(quotedRoutes, func(i, j int) bool {
-			return quotedRoutes[i].TotalCost*1.618*float64(quotedRoutes[i].TotalDistance) < quotedRoutes[j].TotalCost*1.618*float64(quotedRoutes[j].TotalDistance)
+			return int(float64(quotedRoutes[i].TotalCost)*1.618*float64(quotedRoutes[i].TotalDistance)) < int(float64(quotedRoutes[j].TotalCost)*1.618*float64(quotedRoutes[j].TotalDistance))
 		})
 	}
 	return quotedRoutes, nil
@@ -123,55 +125,63 @@ func (r *RouteService) findAllPossiblePrices(routes [][]string, requestedRoute m
 }
 
 func (r *RouteService) generateRoutesForProviders(route []string, requestedRoute models.RequestedRoute, currentQuotedRoute models.QuotedRoute, segmentIndex int) []models.QuotedRoute {
-	if segmentIndex >= len(route)-1 {
-		return []models.QuotedRoute{currentQuotedRoute}
-	}
+    if segmentIndex >= len(route)-1 {
+        return []models.QuotedRoute{currentQuotedRoute}
+    }
 
-	from := route[segmentIndex]
-	to := route[segmentIndex+1]
+    from := route[segmentIndex]
+    to := route[segmentIndex+1]
 
-	providers, err := r.fetchProviders(from, to, requestedRoute)
-	if err != nil {
-		log.Println("Error fetching providers:", err)
-		return nil
-	}
+    providers, err := r.fetchProviders(from, to, requestedRoute)
+    if err != nil {
+        log.Println("Error fetching providers:", err)
+        return nil
+    }
 
-	var allQuotedRoutes []models.QuotedRoute
+    var allQuotedRoutes []models.QuotedRoute
 
-	for _, provider := range providers {
-		if segmentIndex > 0 {
-			previousProvider := currentQuotedRoute.Sections[segmentIndex-1]
-			if provider.FlightStart.Before(previousProvider.FlightEnd) {
-				continue
-			}
-		}
+    for _, provider := range providers {
+        if segmentIndex > 0 {
+            previousProvider := currentQuotedRoute.Sections[segmentIndex-1]
+            if provider.FlightStart.Before(previousProvider.FlightEnd) {
+                continue
+            }
+        }
 
-		newQuotedRoute := models.QuotedRoute{
-			PricelistID:   r.Pricelist.Id,
-			FullRoute:     currentQuotedRoute.FullRoute,
-			Sections:      append([]models.RouteSection{}, currentQuotedRoute.Sections...),
-			TotalCost:     currentQuotedRoute.TotalCost + provider.Price,
-			TotalDistance: currentQuotedRoute.TotalDistance + provider.Distance,
-			ValidUntil: r.Pricelist.ValidUntil,
-		}
+        newQuotedRoute := models.QuotedRoute{
+            PricelistID:   r.Pricelist.Id,
+            FullRoute:     currentQuotedRoute.FullRoute,
+            Sections:      append([]models.RouteSection{}, currentQuotedRoute.Sections...),
+            TotalCost:     currentQuotedRoute.TotalCost + int64(math.Round(provider.Price)),
+            TotalDistance: currentQuotedRoute.TotalDistance + provider.Distance,
+            ValidUntil:    r.Pricelist.ValidUntil,
+        }
 
-		newQuotedRoute.Sections = append(newQuotedRoute.Sections, provider)
+        newQuotedRoute.Sections = append(newQuotedRoute.Sections, provider)
 
-		var journeyStart time.Time
-		if segmentIndex == 0 {
-			journeyStart = provider.FlightStart
-		} else {
-			journeyStart = currentQuotedRoute.Sections[0].FlightStart
-		}
-		journeyEnd := provider.FlightEnd
+        var journeyStart time.Time
+        if segmentIndex == 0 {
+            journeyStart = provider.FlightStart
+        } else {
+            journeyStart = currentQuotedRoute.Sections[0].FlightStart
+        }
+        journeyEnd := provider.FlightEnd
 
-		newQuotedRoute.TotalTime = journeyEnd.Sub(journeyStart)
+        totalDuration := journeyEnd.Sub(journeyStart)
+        newQuotedRoute.TotalTime = formatDuration(totalDuration)
 
-		furtherRoutes := r.generateRoutesForProviders(route, requestedRoute, newQuotedRoute, segmentIndex+1)
-		allQuotedRoutes = append(allQuotedRoutes, furtherRoutes...)
-	}
+        furtherRoutes := r.generateRoutesForProviders(route, requestedRoute, newQuotedRoute, segmentIndex+1)
+        allQuotedRoutes = append(allQuotedRoutes, furtherRoutes...)
+    }
 
-	return allQuotedRoutes
+    return allQuotedRoutes
+}
+
+func formatDuration(duration time.Duration) string {
+    hours := int(duration.Hours())
+    days := hours / 24
+    remainingHours := hours % 24
+    return fmt.Sprintf("%d days and %d hours", days, remainingHours)
 }
 
 func (r *RouteService) fetchProviders(from, to string, requestedRoute models.RequestedRoute) ([]models.RouteSection, error) {

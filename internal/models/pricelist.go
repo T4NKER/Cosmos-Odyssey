@@ -5,6 +5,7 @@ import (
 )
 
 // This should be refetched every 15 minutes, since the data refreshes every 15 minutes.
+// EDIT: THis has been handled in the GetQuotes method of RouteService
 type Pricelist struct {
 	Id         string    `json:"id"`
 	ValidUntil time.Time `json:"validUntil"`

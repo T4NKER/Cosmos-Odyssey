@@ -26,5 +26,5 @@ CREATE TABLE reservations (
     route_id TEXT REFERENCES routes(id) ON DELETE CASCADE,
     total_quoted_price DECIMAL,
     total_quoted_travel_time INTEGER,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    travel_companies varchar(255),
 );
