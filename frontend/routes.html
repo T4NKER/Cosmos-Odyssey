@@ -59,7 +59,8 @@
                 {{ if .Sections }}
                     <h3>Route Sections:</h3>
                     {{ range .Sections }}
-                        <div class="section-item">
+                        <div class="section-item" >
+                            <p><strong>Flight ID:</strong><span class="RouteID">{{ .ID }}</span></p>
                             <p><strong>Provider:</strong> <span class="provider">{{ .Provider }}</span></p>
                             <p><strong>From:</strong> {{ .From }}</p>
                             <p><strong>To:</strong> {{ .To }}</p>
@@ -70,7 +71,7 @@
                     {{ end }}
                 {{ end }}
                 <div class="reservationContainer">
-                    <form action="/reservation" method="POST">
+                    <form action="/reservation" method="POST" onsubmit="setProvidersAndRouteIDs(this)">
                         <label for="firstName">First Name:</label>
                         <input type="text" name="firstname" placeholder="Enter First Name" required>
 
@@ -79,9 +80,11 @@
 
                         <input type="hidden" name="fullRoute" value="{{ .FullRoute }}">
                         <input type="hidden" name="pricelistID" value="{{ .PricelistID }}">
-                        <input type="hidden" name="validUntil" value="{{ .ValidUntil }}">
+                        <input type="hidden" name="validUntil" value="{{ .ValidUntil.Format "Jan 02, 2006 15:04 GMT" }}">
                         <input type="hidden" name="totalCost" value="{{ .TotalCost }}">
                         <input type="hidden" name="totalTime" value="{{ .TotalTime }}">
+                        <input type="hidden" name="transportationCompanyNames" class="providers">
+                        <input type="hidden" name="routeIDs" class="routeIDs">
 
                         <button type="submit" class="reservationButton">Confirm reservation</button>
                     </form>
@@ -89,5 +92,27 @@
             </div>
         {{ end }}
     </div>
+    <script>
+        function setProvidersAndRouteIDs(form) {
+            const routeItem = form.closest('.route-item');
+
+            const providers = Array.from(routeItem.querySelectorAll('.provider'))
+                .map(providerElement => providerElement.textContent)
+                .join(', ');
+
+            form.querySelector('.providers').value = providers;
+
+            const routeIDs = Array.from(routeItem.querySelectorAll('.RouteID'))
+                .map(routeIDElement => routeIDElement.textContent)
+                .join(', ');
+
+            form.querySelector('.routeIDs').value = routeIDs;
+
+            console.log("Form being submitted:", form);
+            console.log("Concatenated providers:", providers);
+            console.log("Collected Route IDs:", routeIDs);
+        }
+        
+    </script>
 </body>
 </html>

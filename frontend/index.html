@@ -14,7 +14,7 @@
             display: block;
             margin-bottom: 10px;
         }
-        select {
+        select, input {
             width: 200px;
             padding: 5px;
             margin-bottom: 10px;
@@ -40,7 +40,7 @@
             {{ end }}
         </select>
 
-        <label for="to">Select Destination:</label>
+        <label for="to">Select destination:</label>
         <select id="to" name="to" required>
             <option value="">-- Select Destination --</option>
             <!-- Populate destination options dynamically -->
@@ -49,13 +49,24 @@
             {{ end }}
         </select>
         
-        <label for="provider">Select Company (Optional):</label>
+        <label for="provider">Select company (optional):</label>
         <select id="provider" name="provider">
             <option value="">-- Select Company --</option>
             <!-- Populate company options dynamically -->
             {{ range .companiesAndDestinations.Companies }}
                 <option value="{{ . }}">{{ . }}</option>
             {{ end }}
+        </select>
+
+        <label for="max_cost">Max cost (optional):</label>
+        <input type="number" id="max_cost" name="max_cost" placeholder="Cost">
+        
+        <label for="sort">Select sort (optional):</label>
+        <select id="sort" name="sort">
+            <option value="">-- Select Sort --</option>
+            <option value="price">Price</option>
+            <option value="time">Time</option>
+            <option value="distance">Distance</option>
         </select>
         
         <button type="submit">Submit</button>

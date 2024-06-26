@@ -23,8 +23,8 @@ CREATE TABLE reservations (
     pricelist_id TEXT REFERENCES pricelists(id) ON DELETE CASCADE,
     first_name VARCHAR(255),
     last_name VARCHAR(255),
-    route_id TEXT REFERENCES routes(id) ON DELETE CASCADE,
+    routes  VARCHAR(255),
     total_quoted_price DECIMAL,
     total_quoted_travel_time INTEGER,
-    travel_companies varchar(255),
+    travel_companies varchar(255)
 );
