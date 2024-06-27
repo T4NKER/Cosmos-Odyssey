@@ -46,8 +46,8 @@ func (r *ReservationService) MakeReservation(reservation models.Reservation) (mo
 	newID := uuid.New().String()
 	reservation.ID = newID
 
-	_, err = tx.Exec("INSERT INTO reservations (id, pricelist_id, first_name, last_name, routes, total_quoted_price, total_quoted_travel_time, travel_companies) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-		reservation.ID, reservation.PricelistID, reservation.Firstname, reservation.Lastname, reservation.Route, reservation.TotalQuotedPrice, reservation.TotalQuotedTravelTime, reservation.TransportationCompanyNames)
+	_, err = tx.Exec("INSERT INTO reservations (id, pricelist_id, first_name, last_name, routes, total_quoted_price, total_quoted_travel_time, travel_companies, flight_ids) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		reservation.ID, reservation.PricelistID, reservation.Firstname, reservation.Lastname, reservation.Route, reservation.TotalQuotedPrice, reservation.TotalQuotedTravelTime, reservation.TransportationCompanyNames, reservation.RouteIDs)
 	if err != nil {
 		log.Println("Failed to insert reservation: ", err)
 		return reservation, err
@@ -155,7 +155,7 @@ func (r *ReservationService) ValidateReservation(reservation models.Reservation)
 	}
 
 	// SEE PEAB OLEMA CRYPTO PACKAGEIGA TEHTUD vist
-	if math.Abs(math.Round(totalQuotedPrice)-reservation.TotalQuotedPrice) > 0.1 { 
+	if math.Abs(math.Round(totalQuotedPrice)-reservation.TotalQuotedPrice) > 1 { 
 		return errors.New("total quoted price does not match")
 	}
 
