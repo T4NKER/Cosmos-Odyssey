@@ -26,5 +26,6 @@ CREATE TABLE reservations (
     routes  VARCHAR(255),
     total_quoted_price DECIMAL,
     total_quoted_travel_time INTEGER,
-    travel_companies varchar(255)
+    travel_companies varchar(255),
+    flight_Ids TEXT
 );
