@@ -16,7 +16,7 @@ func Start() {
 	router.LoadHTMLGlob("./frontend/*.html")
 	router.Use(cors.New(loadCorsConfig()))
 
-	pricelistService := external.NewExternalPricelistService()
+	pricelistService := external.NewExternalPricelistService(database.Db)
 	routeService := services.NewRouteService(database.Db, pricelistService)
 	reservationService := services.NewReservationService(database.Db, pricelistService)
 	homeService := services.NewHomeService(database.Db)
