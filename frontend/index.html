@@ -3,12 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Destination Selection</title>
+    <title>Reservation System</title>
     <style>
         /* Basic styling for demonstration */
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+        }
+        .tab {
+            display: none;
+        }
+        .tab.active {
+            display: block;
         }
         label {
             display: block;
@@ -26,53 +32,88 @@
             border: none;
             cursor: pointer;
         }
+        .tab-buttons {
+            margin-bottom: 20px;
+        }
+        .tab-buttons button {
+            padding: 10px 20px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <h2>Select Destination and Company</h2>
-    <form id="destinationForm" action="/routes" method="POST">
-        <label for="from">Select starting point:</label>
-        <select id="from" name="from" required>
-            <option value="">-- Select Starting Point --</option>
-            <!-- Populate starting point options dynamically -->
-            {{ range .companiesAndDestinations.Destinations }}
-                <option value="{{ . }}">{{ . }}</option>
-            {{ end }}
-        </select>
+    <div class="tab-buttons">
+        <button onclick="showTab('destination')">Select Destination</button>
+        <button onclick="showTab('reservation')">Get Reservation</button>
+    </div>
 
-        <label for="to">Select destination:</label>
-        <select id="to" name="to" required>
-            <option value="">-- Select Destination --</option>
-            <!-- Populate destination options dynamically -->
-            {{ range .companiesAndDestinations.Destinations }}
-                <option value="{{ . }}">{{ . }}</option>
-            {{ end }}
-        </select>
-        
-        <label for="provider">Select company (optional):</label>
-        <select id="provider" name="provider">
-            <option value="">-- Select Company --</option>
-            <!-- Populate company options dynamically -->
-            {{ range .companiesAndDestinations.Companies }}
-                <option value="{{ . }}">{{ . }}</option>
-            {{ end }}
-        </select>
+    <div id="destination" class="tab active">
+        <h2>Select Destination and Company</h2>
+        <form id="destinationForm" action="/routes" method="POST">
+            <label for="from">Select starting point:</label>
+            <select id="from" name="from" required>
+                <option value="">-- Select Starting Point --</option>
+                <!-- Populate starting point options dynamically -->
+                {{ range .companiesAndDestinations.Destinations }}
+                    <option value="{{ . }}">{{ . }}</option>
+                {{ end }}
+            </select>
 
-        <label for="max_cost">Max cost (optional):</label>
-        <input type="number" id="max_cost" name="max_cost" placeholder="Cost">
-        
-        <label for="sort">Select sort (optional):</label>
-        <select id="sort" name="sort">
-            <option value="">-- Select Sort --</option>
-            <option value="price">Price</option>
-            <option value="time">Time</option>
-            <option value="distance">Distance</option>
-        </select>
-        
-        <button type="submit">Submit</button>
-    </form>
+            <label for="to">Select destination:</label>
+            <select id="to" name="to" required>
+                <option value="">-- Select Destination --</option>
+                <!-- Populate destination options dynamically -->
+                {{ range .companiesAndDestinations.Destinations }}
+                    <option value="{{ . }}">{{ . }}</option>
+                {{ end }}
+            </select>
+            
+            <label for="provider">Select company (optional):</label>
+            <select id="provider" name="provider">
+                <option value="">-- Select Company --</option>
+                <!-- Populate company options dynamically -->
+                {{ range .companiesAndDestinations.Companies }}
+                    <option value="{{ . }}">{{ . }}</option>
+                {{ end }}
+            </select>
+
+            <label for="max_cost">Max cost (optional):</label>
+            <input type="number" id="max_cost" name="max_cost" placeholder="Cost">
+            
+            <label for="sort">Select sort (optional):</label>
+            <select id="sort" name="sort">
+                <option value="">-- Select Sort --</option>
+                <option value="price">Price</option>
+                <option value="time">Time</option>
+                <option value="distance">Distance</option>
+            </select>
+            
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <div id="reservation" class="tab">
+        <h2>Get Reservation</h2>
+        <form id="reservationForm" action="/getreservation" method="POST">
+            <label for="firstname">First Name:</label>
+            <input type="text" id="firstname" name="firstname" required>
+
+            <label for="lastname">Last Name:</label>
+            <input type="text" id="lastname" name="lastname" required>
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
 
     <script>
+        function showTab(tabId) {
+            document.querySelectorAll('.tab').forEach(function(tab) {
+                tab.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+        }
+
         document.getElementById('destinationForm').addEventListener('submit', function(event) {
             var from = document.getElementById('from').value;
             var to = document.getElementById('to').value;

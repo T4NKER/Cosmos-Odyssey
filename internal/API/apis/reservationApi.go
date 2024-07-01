@@ -19,6 +19,7 @@ func NewReservationAPI(reservationService *services.ReservationService) *Reserva
 
 func (r *ReservationAPI) RegisterRoutes(router *gin.Engine) {
 	router.POST("/reservation", r.MakeReservation)
+	router.POST("/getreservation", r.GetReservation)
 }
 
 func (r *ReservationAPI) MakeReservation(c *gin.Context) {
@@ -46,4 +47,25 @@ func (r *ReservationAPI) MakeReservation(c *gin.Context) {
 	}
 
 	c.HTML(http.StatusOK, "reservation.html", gin.H{"error": nil, "reservationSuccess": reservationSuccess})
+}
+
+func (r *ReservationAPI) GetReservation(c *gin.Context) {
+	var reservation models.Reservation
+	if err := c.Bind(&reservation); err != nil {
+		c.HTML(http.StatusBadRequest, "error.html", gin.H{"error": "There was an error while parsing the reservation information"})
+		log.Println(err)
+		return
+	}
+
+	gottenReservations, err := r.ReservationService.GetReservation(reservation)
+	if err != nil {
+			if err.Error() == "invalid reservation, there's a new pricelist already, refresh and try again" {
+				c.HTML(http.StatusBadRequest, "error.html", gin.H{"error": err.Error()})
+				return 
+			}
+			c.HTML(http.StatusBadRequest, "error.html", gin.H{"error": "There was an error validating the reservation"})
+			return 
+	}
+
+	c.HTML(http.StatusOK, "reservation.html", gin.H{"error": nil, "gottenReservations": gottenReservations})
 }

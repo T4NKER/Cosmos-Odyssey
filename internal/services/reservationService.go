@@ -62,7 +62,6 @@ func (r *ReservationService) createArray(route string, stringType string) []stri
 
 	switch stringType {
 	case "transport":
-		// Remove commas and split by spaces
 		segments := strings.Split(route, ", ")
 		for _, seg := range segments {
 			if seg != "" {
@@ -71,7 +70,6 @@ func (r *ReservationService) createArray(route string, stringType string) []stri
 		}
 
 	case "route":
-		// Split by commas, trim spaces around each company name
 		segments := strings.Split(route, " ")
 		for _, seg := range segments {
 			seg = strings.TrimSpace(seg)
@@ -106,16 +104,12 @@ func (r *ReservationService) ValidateReservation(reservation models.Reservation)
 	transportationArray := r.createArray(reservation.TransportationCompanyNames, "transport")
 	routeIDArray := r.createArray(reservation.RouteIDs, "routeID")
 
-	// Fetch the current pricelist from memory or database, assuming it's available in RouteService
 	r.Pricelist.Mutex.Lock()
 	defer r.Pricelist.Mutex.Unlock()
 
-	// Validate each segment in the route
 	for i := 0; i < len(routeArray)-1; i++ {
 		from := routeArray[i]
 		to := routeArray[i+1]
-
-		// Find providers in the pricelist for this segment
 		providersFound := false
 		for _, leg := range r.Pricelist.Pricelist.Legs {
 			routeInfo := leg.RouteInfo
@@ -153,11 +147,40 @@ func (r *ReservationService) ValidateReservation(reservation models.Reservation)
 			}
 		}
 	}
-
-	// SEE PEAB OLEMA CRYPTO PACKAGEIGA TEHTUD vist
-	if math.Abs(math.Round(totalQuotedPrice)-reservation.TotalQuotedPrice) > 1 { 
+	if math.Abs(math.Round(totalQuotedPrice)-reservation.TotalQuotedPrice) > 1 {
 		return errors.New("total quoted price does not match")
 	}
 
 	return nil
+}
+
+func (r *ReservationService) GetReservation(reservation models.Reservation) ([]models.Reservation, error) {
+	var reservations []models.Reservation
+	query := "SELECT id, first_name, last_name, routes, total_quoted_price, total_quoted_travel_time FROM reservations WHERE first_name = ? AND last_name = ?"
+
+	rows, err := r.DB.Query(query, reservation.Firstname, reservation.Lastname)
+	if err != nil {
+		log.Println("Error getting reservation: ", err)
+		return reservations, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var reservation models.Reservation
+		err := rows.Scan(&reservation.ID, &reservation.Firstname, &reservation.Lastname, &reservation.Route, &reservation.TotalQuotedPrice, &reservation.TotalQuotedTravelTime) 
+		if err != nil {
+			log.Println("Error scanning reservation:", err)
+			return reservations, err
+		}
+		reservations = append(reservations, reservation)
+	}
+
+	// Check for errors from iterating over rows
+	if err = rows.Err(); err != nil {
+		log.Println("Rows iteration error:", err)
+		return reservations, err
+	}
+
+	return reservations, nil
 }
