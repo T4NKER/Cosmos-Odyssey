@@ -23,6 +23,10 @@ func databaseInit() *sql.DB {
     if err != nil {
         log.Fatalf("Error opening database: %v", err)
     }
+	_, err = Db.Exec("PRAGMA foreign_keys = ON")
+    if err != nil {
+        log.Fatal(err)
+    }
     log.Println("Database running")
 
 	return Db
