@@ -156,7 +156,7 @@ func (r *ReservationService) ValidateReservation(reservation models.Reservation)
 
 func (r *ReservationService) GetReservation(reservation models.Reservation) ([]models.Reservation, error) {
 	var reservations []models.Reservation
-	query := "SELECT id, first_name, last_name, routes, total_quoted_price, total_quoted_travel_time FROM reservations WHERE first_name = ? AND last_name = ?"
+	query := "SELECT id, first_name, last_name, routes, total_quoted_price, total_quoted_travel_time, travel_companies FROM reservations WHERE first_name = ? AND last_name = ?"
 
 	rows, err := r.DB.Query(query, reservation.Firstname, reservation.Lastname)
 	if err != nil {
@@ -168,7 +168,7 @@ func (r *ReservationService) GetReservation(reservation models.Reservation) ([]m
 
 	for rows.Next() {
 		var reservation models.Reservation
-		err := rows.Scan(&reservation.ID, &reservation.Firstname, &reservation.Lastname, &reservation.Route, &reservation.TotalQuotedPrice, &reservation.TotalQuotedTravelTime) 
+		err := rows.Scan(&reservation.ID, &reservation.Firstname, &reservation.Lastname, &reservation.Route, &reservation.TotalQuotedPrice, &reservation.TotalQuotedTravelTime, &reservation.TransportationCompanyNames) 
 		if err != nil {
 			log.Println("Error scanning reservation:", err)
 			return reservations, err
